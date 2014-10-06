@@ -27,9 +27,9 @@ See `sample_inputs` in `game.c`
 Create a subdir under `src/modules`.  Copy `src/modules/stub/SConscript` into your directory, replacing `module_files` with a list of the files you want to assemble into a static library.
 
 Build the module with:
-    scons debug=1 module=<your module> install
+    scons debug=1 module=modulename install
 
-If successful, this places the module at `bin/<your_module>`.
+If successful, this places the module at `bin/modulename`.
 
 Modules have one API responsibility: to implement `int asm_tick( Uint8 buttons, Uint32 *pixels, Uint32 elapsed_ms )`.
 
