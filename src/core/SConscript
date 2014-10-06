@@ -1,0 +1,12 @@
+
+core_files = [
+    'main.c',
+    'game.c',
+]
+
+Import('out_path env install_path')
+
+prog = env.Program( out_path, core_files )
+env.Install( install_path, prog )
+env.Alias( 'install', install_path )
+

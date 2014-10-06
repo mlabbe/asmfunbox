@@ -1,0 +1,95 @@
+import os
+import sys
+
+
+def get_out_path( base_name, is_debug ):
+    if debug:
+        return "%s_d" % (base_name)
+    else:
+        return base_name
+
+def add_sdl_to_env( env ):
+    # fixme: this will only work on my systems
+
+    FROGLIBS = os.environ['FROGLIBS']
+    env.Append( CPPPATH=[ FROGLIBS + "/vendors/SDL2/include" ],
+                LIBPATH=[ FROGLIBS + "/vendors/out.x64/lib" ],
+                LIBS=['SDL2'] )
+    return env
+
+def add_gl_to_env(env):
+    if str(Platform()) == 'darwin':
+        env.Append( FRAMEWORKS=['OpenGL'] )
+    elif str(Platform()) == 'posix':
+        env.Append( LIBS=['GL', 'GLU', 'pthread', 'dl', 'm'] )
+    return env
+
+
+def get_available_modules():
+    return os.listdir( "./modules" );
+
+def print_welcome_text():
+    print "Welcome to asmfunbox!  You are almost ready to build and run any of our test modules."
+    print "You must choose a module, and optionally build in debug or release mode."
+    print "\nUsage:"
+    print "scons debug=[0|1] module=<somemodule> install"
+    print "\nAvailable modules: "
+    available_modules = get_available_modules()
+    print '\n'.join( available_modules )
+
+def get_module_libname(module):
+    return "module_%s" % module
+
+#
+#
+#
+
+debug = int(ARGUMENTS.get('debug',0))
+module = ARGUMENTS.get('module',None)
+
+if not module:
+    print_welcome_text()
+    sys.exit(1)
+
+if module not in get_available_modules():
+    print "invalid module %s" % module
+    sys.exit(1)
+
+print "building module %s" % module 
+
+module_libname = get_module_libname( module )
+
+env = Environment( TARGET_ARCH='x86_64',
+                   tools=['gcc', 'default'] )
+env.Append( CPPFLAGS=['-Wall'],
+            LIBS=['module_%s' % module],
+            LIBPATH=["../modules/%s" % module] )
+
+if debug:
+    env.Append( CPPFLAGS=['-O0', '-g', '-DDEBUG'] )
+else:
+    env.Append( CPPFLAGS=['-O3'], 
+                LINKFLAGS=[] )
+                    
+if debug:
+    sys.stdout.write('debug\n')
+else:
+    sys.stdout.write('release\n')
+
+env = add_sdl_to_env( env )
+env = add_gl_to_env( env )
+
+out_path = get_out_path( module, debug )
+
+# build asm environment
+asm_env = Environment( )
+asm_env.Tool('nasm')
+asm_env.Append( ASFLAGS=['-f', 'elf64'] )
+
+if debug:
+    asm_env.Append( ASFLAGS=[('-l ../bin/%s.lst' % module)] )
+
+install_path = '../../bin'
+
+exports='out_path env asm_env install_path module_libname'
+SConscript( ['core/SConscript', ('modules/%s/SConscript' % module)], exports )
