@@ -1,0 +1,10 @@
+
+module_files = [
+    'main.asm'
+]
+
+Import('asm_env module_libname')
+
+# build nasm static lib
+asm_env.StaticLibrary( module_libname, module_files )
+
