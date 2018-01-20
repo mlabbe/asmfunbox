@@ -13,10 +13,12 @@ If you are a game programmer looking to learn 64-bit assembly, this is a good ap
  - nasm for assembling
  - 64-bit GCC for compiling
  - SDL2 and OpenGL headers
+ 
+`apt-get install nasm libsd2-dev scons libglu1-mesa-dev` should do it.
 
 ### Known Issues ###
 
-In `SConstruct`, `add_sdl_to_env` must be investigated, as the locations for `CPPPATH` and `LIBPATH` will need to be updated.
+None. Report bugs!
 
 ## Controls ##
 
