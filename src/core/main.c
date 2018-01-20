@@ -1,4 +1,4 @@
-/* GPL3 asm funbox */
+/* MIT asm funbox */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
     if ( !globals.glcontext )
         print_fatal_sdl_error( "SDL_GL_CreateContext" );
 
+    printf("Initializing %dx%d framebuffer\n", BUFFER_W, BUFFER_H);
     globals.backbuf = SDL_CreateRGBSurface( 0,
                                             BUFFER_W, BUFFER_H,
                                             32, 0, 0, 0, 0 );
@@ -83,6 +84,7 @@ int main(int argc, char *argv[])
     game_loop();
 
     // todo: cleanup surfaces and textures
+
 
     return 0;
 }

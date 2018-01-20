@@ -9,8 +9,11 @@
 #define WINDOW_H 1080
 
 /* size of pixel buffer to stretch over target rendering window */
-#define BUFFER_W 320/2
-#define BUFFER_H (int)((float)(WINDOW_W/WINDOW_H)*BUFFER_W) /* match window aspect ratio */
+
+/* warning: hipster asthetic feel free to change this though it will
+   break existing demos. */
+#define BUFFER_W (WINDOW_W/12)
+#define BUFFER_H (WINDOW_H/12)
 
 #define VSYNC 0
 
