@@ -1,0 +1,128 @@
+#    _______________ _____ 
+#   |_  |  ___|  _  \_   _|
+#     | | |_  | | | | | |  
+#     | |  _| | | | | | |  
+# /\__/ / |   | |/ / _| |_ 
+# \____/\_|   |___/  \___/ 
+#
+# NOTE:
+# if you do not have jfdi.py, run this script with python to get it.
+# or, git clone https://github.com/mlabbe/jfdi
+"""
+jfdi build script
+
+available functions:
+  cp(src, dst)  - copy a file or directory
+  rm(str|iter)  - remove file or directory
+  arg(str)      - convert a /flag into a -flag depending on compiler
+  use('?')      - add make-like variables (LD, CC, etc.). gcc, clang, msvc
+  cmd(list|str) - run a command on a shell, fatal if error, stdout returns as str
+  die(str)      - fail build with a message, errorlevel 3
+  env(str)      - return environment variable or None
+  exe(str)      - return filename with exe extension based on TARGET_OS
+  exp(str)      - expand a $string, searching CLI --vars and then global scope
+  ext(str)      - return file extension         (file.c = .c)
+  raw(str)      - return file without extension (file.c = file)
+  log(str)      - print to stdout
+  mkd(str)      - make all subdirs
+  obj(str)      - return filename with obj file ext (file.c = file.obj)
+  pth(str)      - swap path slashes -- \ on windows, / otherwise
+  var(str)      - get buildvar passed in as a string, ie: DEBUG="0"
+  yes(str)      - get buildvar passed in as a boolean, ie: DEBUG=False
+
+variables:
+  HOST_OS       - compiling machine OS    (str)
+  TARGET_OS     - target machine OS       (str)
+
+after use(), variables, where applicable:
+  CC            - c compiler
+  CXX           - c++ compiler
+  LD            - linker
+  OBJ           - obj extension (ex: 'obj')
+  CCTYPE        - compiler 
+  CFLAGS        - list of c flags
+  CXXFLAGS      - list of c++ flags
+  LDFLAGS       - list of linker flags
+  
+"""
+
+JFDI_VERSION = 1
+
+INTERMEDIATE_DIR = '../build'
+BIN_DIR = "../bin"
+
+# called at the start of the build
+def start_build():
+    use('clang')
+
+    mkd(INTERMEDIATE_DIR)
+    mkd(BIN_DIR)
+
+
+    # just always build without optimizations for the time being
+    CFLAGS.extend(['-O0', '-g', '-Wall', '-pedantic', '--std=gnu99'])
+    LDFLAGS.extend(['-lSDL2', '-lGL', '-lGLU', '-lm'])
+
+
+# return a list of files
+def list_input_files():
+    return ['main.c', 'game.c']
+
+
+# return command to build single file in_path or None to skip
+def build_this(in_path):
+    if ext(in_path) == '.c':
+        obj_path = obj(in_path, INTERMEDIATE_DIR)
+        return exp("$CC $CFLAGS -c $in_path -o $obj_path")
+
+    return None
+
+# called after every input file has been built
+def end_build(in_files):
+    objs = obj(in_files, INTERMEDIATE_DIR)
+
+    bin_path = BIN_DIR + '/asmfunbox'
+
+    cmd(exp("$LD $objs -o $bin_path $LDFLAGS"))
+
+# called when the user runs 'jfdi clean'
+def clean(in_files):
+    rm(INTERMEDIATE_DIR + '/*.o')
+    rm(BIN_DIR + '/asmfunbox')
+
+# called when the user runs 'jfdi run'
+def run():
+    pass
+    
+#
+# main -- installs build system if build script is run directly
+#
+# generated code: do not edit this
+#
+if __name__ == '__main__':
+    import sys
+    import os.path
+    import urllib.request
+    
+    print("You have run the build script directly.")
+    print("Expected Usage: python jfdi.py -f %s" %
+          sys.argv[0])
+
+    DST_FILENAME = 'jfdi.py'
+    if os.path.exists(DST_FILENAME):
+        sys.exit(0)
+    print("Do you want to download the JFDI build script?")
+    yesno = input('Y/n -->')
+    if yesno == 'n':
+        sys.exit(0)
+
+    print("downloading jfdi.py")
+    url = "https://raw.githubusercontent.com/mlabbe/jfdi/master/jfdi.py"
+    urllib.request.urlretrieve(url, DST_FILENAME)
+    
+    print("%s downloaded." % DST_FILENAME)
+    print("Usage: python %s -f %s" %
+          (DST_FILENAME, sys.argv[0]))
+    print("To permanently install jfdi, manually copy jfdi.py into your search path.")
+    sys.exit(0)
+
