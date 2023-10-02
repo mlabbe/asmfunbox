@@ -24,13 +24,13 @@ def get_available_modules():
     return os.listdir( "./modules" );
 
 def print_welcome_text():
-    print "Welcome to asmfunbox!  You are almost ready to build and run any of our test modules."
-    print "You must choose a module, and optionally build in debug or release mode."
-    print "\nUsage:"
-    print "scons debug=[0|1] module=<somemodule> install"
-    print "\nAvailable modules: "
+    print("Welcome to asmfunbox!  You are almost ready to build and run any of our test modules.")
+    print("You must choose a module, and optionally build in debug or release mode.")
+    print("\nUsage:")
+    print("scons debug=[0|1] module=<somemodule> install")
+    print("\nAvailable modules: ")
     available_modules = get_available_modules()
-    print '\n'.join( available_modules )
+    print('\n'.join( available_modules ))
 
 def get_module_libname(module):
     return "module_%s" % module
@@ -47,10 +47,10 @@ if not module:
     sys.exit(1)
 
 if module not in get_available_modules():
-    print "invalid module %s" % module
+    print("invalid module %s" % module)
     sys.exit(1)
 
-print "building module %s" % module 
+print("building module %s" % module) 
 
 module_libname = get_module_libname( module )
 
