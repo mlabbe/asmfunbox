@@ -22,9 +22,10 @@ typedef uint8_t buttons_t;
 #define BTN_RIGHT (1 << 1)
 #define BTN_UP (1 << 2)
 #define BTN_DOWN (1 << 3)
-#define BTN_START (1 << 4)
-#define BTN_A (1 << 5)
-#define BTN_B (1 << 6)
+#define BTN_SELECT (1 << 4)
+#define BTN_START (1 << 5)
+#define BTN_A (1 << 6)
+#define BTN_B (1 << 7)
 
 
 // this is the only function that needs to be implemented in assembly
@@ -120,6 +121,9 @@ sample_input_buttons(int* quit, buttons_t* buttons)
             if (SCANCODE == SDL_SCANCODE_1)
                 *buttons &= ~BTN_START;
 
+            if (SCANCODE == SDL_SCANCODE_2)
+                *buttons &= ~BTN_SELECT;
+
             if (SCANCODE == SDL_SCANCODE_A)
                 *buttons &= ~BTN_A;
 
@@ -143,6 +147,9 @@ sample_input_buttons(int* quit, buttons_t* buttons)
 
             if (SCANCODE == SDL_SCANCODE_1)
                 *buttons |= BTN_START;
+
+            if (SCANCODE == SDL_SCANCODE_2)
+                *buttons |= BTN_SELECT;
 
             if (SCANCODE == SDL_SCANCODE_A)
                 *buttons |= BTN_A;
