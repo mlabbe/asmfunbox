@@ -9,24 +9,29 @@
 #include "game.h"
 #include "limits.h"
 
+
 typedef struct {
     uint32_t frame_delta;
     uint32_t elapsed_ms;
 } game_timer_t;
 
-
+// BTN_* bitflags
 typedef uint8_t buttons_t;
 
-#define BTN_LEFT (1 << 1)
-#define BTN_RIGHT (1 << 2)
-#define BTN_UP (1 << 3)
-#define BTN_DOWN (1 << 4)
-#define BTN_START (1 << 5)
-#define BTN_A (1 << 6)
-#define BTN_B (1 << 7)
+#define BTN_LEFT (1)
+#define BTN_RIGHT (1 << 1)
+#define BTN_UP (1 << 2)
+#define BTN_DOWN (1 << 3)
+#define BTN_START (1 << 4)
+#define BTN_A (1 << 5)
+#define BTN_B (1 << 6)
+
+
+// this is the only function that needs to be implemented in assembly
+extern int asm_tick(buttons_t buttons, uint32_t* pixels, uint32_t elapsed_ms);
 
 // set this to true to not call into asm at all -- for debugging, only
-#define IMPLEMENT_GAME_IN_C 1
+#define IMPLEMENT_GAME_IN_C 0
 
 static void
 surface_to_display(SDL_Surface* surface, GLuint* texture_handle)
@@ -153,7 +158,7 @@ sample_input_buttons(int* quit, buttons_t* buttons)
 
 #if IMPLEMENT_GAME_IN_C
 static void
-c_game_tick(buttons_t buttons, uint32_t* px, uint32_t elapsed_ms, SDL_PixelFormat* pixel_format)
+c_tick(buttons_t buttons, uint32_t* px, uint32_t elapsed_ms, SDL_PixelFormat* pixel_format)
 {
     Uint16 x, y;
 
@@ -183,10 +188,12 @@ game_tick(int* quit, buttons_t* buttons, SDL_Surface* surf, game_timer_t* timer)
 {
 #if IMPLEMENT_GAME_IN_C
     SDL_LockSurface(surf->pixels);
-    c_game_tick(*buttons, (uint32_t*)surf->pixels, timer->elapsed_ms, surf->format);
+    c_tick(*buttons, (uint32_t*)surf->pixels, timer->elapsed_ms, surf->format);
     SDL_UnlockSurface(surf->pixels);
 #else
-    // asm_tick
+    SDL_LockSurface(surf->pixels);
+    asm_tick(*buttons, (uint32_t*)surf->pixels, timer->elapsed_ms);
+    SDL_UnlockSurface(surf->pixels);
 #endif
 }
 

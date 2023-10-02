@@ -51,44 +51,67 @@ JFDI_VERSION = 1
 INTERMEDIATE_DIR = '../build'
 BIN_DIR = "../bin"
 
+C_FILES = ('main.c', 'game.c')
+
+import os.path
+
+# bin/foo for asm/foo.asm
+def exe_for_asm_filename(in_asm_path):
+    return BIN_DIR + '/' + exe(os.path.basename(in_asm_path))
+
 # called at the start of the build
 def start_build():
     use('clang')
 
     mkd(INTERMEDIATE_DIR)
     mkd(BIN_DIR)
+    mkd(INTERMEDIATE_DIR + '/asm')
 
 
     # just always build without optimizations for the time being
     CFLAGS.extend(['-O0', '-g', '-Wall', '-pedantic', '--std=gnu99'])
     LDFLAGS.extend(['-lSDL2', '-lGL', '-lGLU', '-lm'])
 
+    # build the c-side obj files, which are unchanged for each asm game
+    for in_path in C_FILES:
+        obj_path = obj(in_path, INTERMEDIATE_DIR)
+        cmd(exp("$CC $CFLAGS -c $in_path -o $obj_path"))
+
 
 # return a list of files
 def list_input_files():
-    return ['main.c', 'game.c']
+    return ['asm/*.asm']
 
 
 # return command to build single file in_path or None to skip
 def build_this(in_path):
-    if ext(in_path) == '.c':
-        obj_path = obj(in_path, INTERMEDIATE_DIR)
-        return exp("$CC $CFLAGS -c $in_path -o $obj_path")
+    # if ext(in_path) == '.c':
+    #     obj_path = obj(in_path, INTERMEDIATE_DIR)
+    #     return exp("$CC $CFLAGS -c $in_path -o $obj_path")
 
-    return None
+    # todo: support different assemblers
+
+    # assemble each asm into a .o
+    asm_obj_path = obj(in_path, INTERMEDIATE_DIR)
+    cmd(exp("nasm -f elf64 -o $asm_obj_path $in_path"))
+
+    # link it
+    bin_path = exe_for_asm_filename(in_path)
+    c_objs = obj(C_FILES, INTERMEDIATE_DIR)
+    return exp("$LD $c_objs $asm_obj_path -o $bin_path $LDFLAGS")
 
 # called after every input file has been built
 def end_build(in_files):
-    objs = obj(in_files, INTERMEDIATE_DIR)
-
-    bin_path = BIN_DIR + '/asmfunbox'
-
-    cmd(exp("$LD $objs -o $bin_path $LDFLAGS"))
+    #objs = obj(in_files, INTERMEDIATE_DIR)
+    #cmd(exp("$LD $objs asm/hello_pixel.o -o $bin_path $LDFLAGS"))
+    pass
 
 # called when the user runs 'jfdi clean'
 def clean(in_files):
     rm(INTERMEDIATE_DIR + '/*.o')
-    rm(BIN_DIR + '/asmfunbox')
+
+    for in_asm_path in in_files:
+        rm(exe_for_asm_filename(in_asm_path))
 
 # called when the user runs 'jfdi run'
 def run():
