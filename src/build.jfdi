@@ -26,7 +26,7 @@ available functions:
   log(str)      - print to stdout
   mkd(str)      - make all subdirs
   obj(str)      - return filename with obj file ext (file.c = file.obj)
-  pth(str)      - swap path slashes -- \ on windows, / otherwise
+  pth(str)      - swap path slashes
   var(str)      - get buildvar passed in as a string, ie: DEBUG="0"
   yes(str)      - get buildvar passed in as a boolean, ie: DEBUG=False
 
