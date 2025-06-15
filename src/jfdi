@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # JFDI is
-# Copyright (C) 2016-2021 Frogtoss Games, Inc.
+# Copyright (C) 2016-2021, 2025 Frogtoss Games, Inc.
 #
 # Author Michael Labbe
 # See LICENSE in this repo for license terms
@@ -539,7 +539,7 @@ def generate_tmpl(path):
         _fatal_error("%s already exists.\n" % path)
 
     f = open(path, "wt")
-    f.write("""\
+    f.write("""\\
 #    _______________ _____ 
 #   |_  |  ___|  _  \_   _|
 #     | | |_  | | | | | |  

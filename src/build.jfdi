@@ -98,7 +98,7 @@ def build_this(in_path):
     # link it
     bin_path = exe_for_asm_filename(in_path)
     c_objs = obj(C_FILES, INTERMEDIATE_DIR)
-    return exp("$LD $c_objs $asm_obj_path -o $bin_path $LDFLAGS")
+    return exp("$LD $c_objs $asm_obj_path -o $bin_path -no-pie -z noexecstack $LDFLAGS")
 
 # called after every input file has been built
 def end_build(in_files):
